@@ -1,3 +1,6 @@
+# Claude local config
+.claude/
+
 # Logs
 logs
 *.log
