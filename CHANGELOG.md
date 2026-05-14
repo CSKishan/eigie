@@ -1,0 +1,151 @@
+# Changelog
+
+All notable changes to **eigie** (everything is gif is everything) are documented in this file.
+
+---
+
+## v1.2 — GIF Size Optimizations
+
+Focused on drastically reducing GIF output file size. A video that previously produced a 3 MB GIF now outputs 400-800 KB with default settings — a **4-7x reduction**.
+
+### Core Encoder Changes
+
+- **Frame delta with transparency** — Consecutive frames are compared pixel-by-pixel. Unchanged pixels are replaced with a transparent key color (`0x010101`), so the GIF only stores the regions that actually changed between frames. The first frame is always encoded in full; subsequent frames are encoded as deltas. This is the single largest size win, typically removing 40-60% of pixel data.
+
+- **Duplicate frame detection** — If fewer than 2% of pixels changed between two consecutive frames, the frame is skipped entirely and the previous frame's display duration is extended. Static or slow-motion segments benefit most. Logged as `[dup]` in the logs panel.
+
+- **Lossy color snapping** — RGB channel values are rounded to the nearest `step` value (configurable: 0/4/8/16). Fewer unique pixel colors means longer runs in the LZW compression dictionary, producing smaller output. Higher step values trade color precision for smaller files.
+
+- **Color count reduction** — When the color count is set below 256, an additional snap step (`ceil(256/colors)`) is applied to pre-quantize pixel data before NeuQuant runs. At 64 colors, this effectively halves the color variety.
+
+### gif.worker.js Patches
+
+- **Disposal mode fix** — Fixed `disp = dispose & 7` referencing an undefined local variable. Changed to `disp = this.dispose & 7` to correctly read the encoder's disposal mode.
+
+- **Transparent frame disposal** — Added `setDispose(1)` (do not dispose / keep previous frame) when a frame uses transparency. Without this, delta frames would render against a blank background instead of compositing over the previous frame.
+
+### Default Settings Tuned for Smaller Output
+
+| Setting | Before | After | Impact |
+|---------|--------|-------|--------|
+| Width | 480px | 320px | ~55% fewer pixels |
+| FPS | 15 | 10 | ~33% fewer frames |
+| Dither | on (Floyd-Steinberg) | off | 20-40% smaller (dithering creates noisy patterns that defeat LZW) |
+| Colors | _(not configurable)_ | 256 (default), 128, 64 | Up to 35% at 64 colors |
+| Lossy | _(not configurable)_ | off (default), light, med, heavy | Up to 50% at heavy |
+
+### New UI Controls
+
+- **Colors** segmented control (64 / 128 / 256) in the settings panel
+- **Lossy** segmented control (off / light / med / heavy) in the settings panel
+- FPS options updated to [8, 10, 15, 24]
+- Dither toggle label changed from "bayer" to "floyd" (reflects actual algorithm used)
+
+### Logs Improvements
+
+- Logs now report duplicate frame count and unique frame count after extraction
+- Individual frames tagged with `[dup]` when skipped
+- Color snap settings logged at conversion start
+
+### Files Changed
+
+- `src/hooks/useGifEncoder.js` — Frame delta, lossy snap, duplicate detection, color reduction
+- `src/components/ControlPanel.jsx` — Colors and lossy controls
+- `src/App.jsx` — Updated default settings
+- `public/gif.worker.js` — Disposal bug fix + setDispose(1) for transparent frames
+
+---
+
+## v1.1 — Performance Optimizations
+
+Focused on conversion speed. Achieved measurable speedup across the full encode pipeline.
+
+### Speed Improvements
+
+- **requestVideoFrameCallback capture** — Replaced seek-based frame extraction with playback-based capture using `requestVideoFrameCallback`. The video plays at 2x speed while frames are grabbed at each decoded frame boundary. Falls back to seek-based extraction on browsers without rvfc support. Eliminates per-frame seek latency.
+
+- **Progressive encoding** — Frames are fed to gif.js immediately during extraction (`gif.addFrame` called inline) instead of collecting all frames first and then encoding. Workers begin processing frames as soon as they arrive, overlapping extraction and encoding phases.
+
+- **NeuQuant quality tuning** — Quality set to 2 (high quality mode) for "quality" preset and 10 for "fast" preset. Lower values = more sampling passes = better palette but slower. The `quality` segmented control lets users choose their tradeoff.
+
+- **Video preload** — Added `preload="auto"` to the video element so the browser buffers the full video before frame extraction begins, avoiding I/O stalls during capture.
+
+- **Ref-based log buffer** — Replaced per-log `setLogs()` calls with a mutable ref buffer (`logBuf`) that flushes to React state every 150ms. Prevents thousands of synchronous state updates during fast frame extraction from blocking the main thread.
+
+- **LED display simplification** — Reduced the LED character display from per-character span rendering to a single `<span>` with monospace text. Eliminates hundreds of DOM nodes during conversion.
+
+- **Timeout cleanup** — Added 5-minute encoding timeout with cleanup to prevent zombie workers if gif.js hangs.
+
+### Files Changed
+
+- `src/hooks/useGifEncoder.js` — rvfc capture, progressive encoding, ref-based logs, timing instrumentation
+- `src/components/ConversionDisplay.jsx` — Simplified LED display
+- `src/components/ConversionDisplay.css` — Updated LED styles
+
+---
+
+## v1.0 — Initial Release
+
+The foundation: a fully client-side video-to-GIF converter with a Teenage Engineering-inspired design.
+
+### Architecture
+
+- **React + Vite** — Fast dev server, production builds with tree-shaking
+- **gif.js** (MIT) — Browser-based GIF encoding using Web Workers and NeuQuant color quantization. The worker script (`gif.worker.js`, 16 KB) is served from `public/` and preloaded in the HTML head
+- **Canvas-based pipeline** — Video frames extracted via `<video>` + `<canvas>` drawImage, pixel data passed to gif.js for encoding. Fully client-side, no server or API calls
+- **No FFmpeg dependency** — Deliberately avoided FFmpeg.wasm (32 MB download, slow to initialize) in favor of the lightweight gif.js approach
+
+### Features
+
+- **Drag-and-drop upload** — UploadZone accepts MP4, WebM, MOV, AVI, MKV. File picker fallback. 2 GB max size. Validates MIME type before processing
+- **Video preview with trim** — Native `<video>` playback with dual-handle trim timeline. Drag start/end handles to select a clip region. Time formatted as MM:SS.s. Default trim capped at 15 seconds with a "long gif ahead" warning
+- **Settings panel** — Segmented controls for FPS, output width, quality preset, and dither toggle. All settings take effect on next conversion
+- **LED status display** — Monospace character display showing current operation. Segmented progress bar (20 segments) with percentage readout
+- **Live logs panel** — Collapsible panel showing timestamped conversion logs. Auto-scrolls with manual scroll-up detection. Copy-all button. Color-coded by log type (error, system, info). Error badge indicator
+- **GIF output panel** — Preview of the generated GIF with file size display. Download button (timestamped filename). WhatsApp share via Web Share API on mobile, WhatsApp Web fallback on desktop
+- **State machine** — App flow: idle → previewing → converting → done / error. Clean reset back to idle at any point
+
+### Design System — Teenage Engineering Aesthetic
+
+- **Color palette** — Orange `#FF6900` accent on near-black `#0A0A0A` background. Cream `#F0EDE8` text. LED display colors with dim/off states
+- **Typography** — JetBrains Mono throughout. Uppercase labels, tabular numerals
+- **Components** — Industrial segmented controls, toggle switches with sliding dots, LED-style readouts, corner-marker upload zone, status LEDs in headers
+- **Spacing** — 8px grid system. Sharp corners (`border-radius: 0`)
+- **Custom scrollbars** — Styled to match the dark theme
+
+### Project Structure
+
+```
+src/
+  App.jsx              — Main app component, state machine
+  App.css              — Layout grid, responsive breakpoints
+  hooks/
+    useGifEncoder.js   — Core conversion logic, frame extraction, gif.js orchestration
+  components/
+    UploadZone.jsx     — Drag-and-drop file input
+    VideoPreview.jsx   — Video player with trim timeline
+    ControlPanel.jsx   — Settings (FPS, width, quality, dither)
+    ConversionDisplay.jsx — LED display, progress bar, convert button
+    OutputPanel.jsx    — GIF preview, download, WhatsApp share
+    LogsPanel.jsx      — Collapsible live log viewer
+  styles/
+    tokens.css         — Design tokens (colors, spacing, typography)
+    global.css         — Global styles, button variants, scrollbars
+public/
+  gif.worker.js        — gif.js Web Worker (patched)
+  favicon.svg          — Orange play triangle on black
+```
+
+### Files
+
+- `src/App.jsx`, `src/App.css`
+- `src/hooks/useGifEncoder.js`
+- `src/components/UploadZone.jsx`, `UploadZone.css`
+- `src/components/VideoPreview.jsx`, `VideoPreview.css`
+- `src/components/ControlPanel.jsx`, `ControlPanel.css`
+- `src/components/ConversionDisplay.jsx`, `ConversionDisplay.css`
+- `src/components/OutputPanel.jsx`, `OutputPanel.css`
+- `src/components/LogsPanel.jsx`, `LogsPanel.css`
+- `src/styles/tokens.css`, `src/styles/global.css`
+- `public/gif.worker.js`, `public/favicon.svg`
+- `index.html`, `vite.config.js`, `vercel.json`, `package.json`

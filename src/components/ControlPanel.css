@@ -1,0 +1,134 @@
+.ctrl-root {
+  display: flex;
+  flex-direction: column;
+}
+
+.ctrl-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--sp-3) var(--sp-4);
+}
+
+.ctrl-led-row {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+}
+
+.ctrl-led {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--c-led-off);
+  box-shadow: none;
+}
+
+.ctrl-led--on {
+  background: var(--c-led-on);
+  box-shadow: 0 0 6px var(--c-orange);
+  animation: blink 2s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.ctrl-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.ctrl-block {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--sp-3) var(--sp-4);
+  border-top: var(--border);
+}
+
+/* Segmented Controls */
+.ctrl-segments {
+  display: flex;
+  border: var(--border);
+}
+
+.ctrl-seg {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: transparent;
+  border: none;
+  border-right: var(--border);
+  color: var(--c-muted);
+  cursor: pointer;
+  padding: 5px 10px;
+  transition: var(--t-fast);
+}
+
+.ctrl-seg:last-child {
+  border-right: none;
+}
+
+.ctrl-seg:hover {
+  color: var(--c-cream);
+  background: var(--c-mid);
+}
+
+.ctrl-seg--active {
+  background: var(--c-orange);
+  color: var(--c-black);
+}
+
+.ctrl-seg--active:hover {
+  background: #FF8533;
+  color: var(--c-black);
+}
+
+/* Toggle */
+.ctrl-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  background: var(--c-dark);
+  border: var(--border);
+  cursor: pointer;
+  padding: 5px 10px;
+  transition: var(--t-fast);
+}
+
+.ctrl-toggle--on {
+  border-color: var(--c-orange);
+}
+
+.ctrl-toggle-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--c-muted);
+  transition: var(--t-fast);
+}
+
+.ctrl-toggle--on .ctrl-toggle-dot {
+  background: var(--c-orange);
+  box-shadow: 0 0 4px var(--c-orange);
+}
+
+.ctrl-toggle-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+  min-width: 36px;
+  transition: var(--t-fast);
+}
+
+.ctrl-toggle--on .ctrl-toggle-label {
+  color: var(--c-orange);
+}

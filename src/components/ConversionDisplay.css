@@ -1,0 +1,126 @@
+.conv-root {
+  display: flex;
+  flex-direction: column;
+}
+
+.conv-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--sp-3) var(--sp-4);
+}
+
+.conv-status-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.conv-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--c-dim);
+}
+
+.conv-status-dot--active {
+  background: var(--c-orange);
+  box-shadow: 0 0 6px var(--c-orange);
+  animation: pulse 0.8s ease-in-out infinite alternate;
+}
+
+.conv-status-dot--done {
+  background: var(--c-green);
+  box-shadow: 0 0 6px var(--c-green);
+}
+
+@keyframes pulse {
+  from { opacity: 1; }
+  to { opacity: 0.3; }
+}
+
+.conv-status-label {
+  font-variant-numeric: tabular-nums;
+}
+
+.conv-body {
+  padding: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+/* LED Display */
+.led-display {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  background: #070700;
+  border: 1px solid #1a1a00;
+  padding: var(--sp-3) var(--sp-4);
+  color: var(--c-led-on);
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 8px var(--c-orange);
+  white-space: pre;
+  overflow: hidden;
+}
+
+.led-text {
+  display: block;
+}
+
+/* Progress Bar */
+.prog-bar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.prog-seg {
+  flex: 1;
+  height: 8px;
+  background: var(--c-led-off);
+  border: 1px solid var(--c-dim);
+}
+
+.prog-seg--on {
+  background: var(--c-orange);
+  border-color: var(--c-orange);
+  box-shadow: 0 0 4px rgba(255, 105, 0, 0.4);
+}
+
+.prog-pct {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--c-orange);
+  letter-spacing: 0.05em;
+  white-space: pre;
+  margin-left: var(--sp-2);
+  min-width: 36px;
+  text-align: right;
+}
+
+.conv-footer {
+  padding: var(--sp-4);
+}
+
+.conv-btn {
+  width: 100%;
+  justify-content: center;
+  padding: var(--sp-4) var(--sp-5);
+  font-size: 12px;
+}
+
+.conv-spinner {
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid rgba(0,0,0,0.3);
+  border-top-color: var(--c-black);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

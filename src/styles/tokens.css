@@ -1,0 +1,42 @@
+:root {
+  /* TE Color Palette */
+  --c-orange: #FF6900;
+  --c-black: #0A0A0A;
+  --c-dark: #1A1A1A;
+  --c-mid: #2A2A2A;
+  --c-dim: #3D3D3D;
+  --c-muted: #666666;
+  --c-cream: #F0EDE8;
+  --c-offwhite: #E8E4DC;
+  --c-white: #FFFFFF;
+
+  /* LED / Display Colors */
+  --c-led-on: #FF6900;
+  --c-led-dim: #3D1800;
+  --c-led-off: #1A1A1A;
+  --c-green: #39FF14;
+  --c-green-dim: #0A2200;
+
+  /* Typography */
+  --font-mono: 'JetBrains Mono', 'IBM Plex Mono', 'Courier New', monospace;
+
+  /* Spacing (8px grid) */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+  --sp-8: 64px;
+  --sp-9: 96px;
+
+  /* Border */
+  --border: 1px solid var(--c-dim);
+  --border-orange: 1px solid var(--c-orange);
+  --radius: 0px;
+
+  /* Transitions */
+  --t-fast: 80ms ease;
+  --t-mid: 160ms ease;
+}

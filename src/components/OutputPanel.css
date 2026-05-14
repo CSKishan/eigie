@@ -1,0 +1,67 @@
+.output-root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.output-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.output-preview {
+  position: relative;
+  border: var(--border-orange);
+  background: var(--c-black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.output-gif {
+  display: block;
+  max-width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+}
+
+.output-badge {
+  position: absolute;
+  top: var(--sp-2);
+  right: var(--sp-2);
+  background: var(--c-orange);
+  padding: 2px 6px;
+}
+
+.output-badge .label {
+  color: var(--c-black);
+  font-weight: 700;
+}
+
+.output-actions {
+  display: flex;
+  gap: var(--sp-3);
+}
+
+.output-dl-btn {
+  flex: 1;
+  justify-content: center;
+  padding: var(--sp-4);
+}
+
+.btn--whatsapp {
+  flex: 1;
+  justify-content: center;
+  padding: var(--sp-4);
+}
+
+.output-share-error {
+  padding: var(--sp-2) 0;
+}
+
+.output-reset {
+  align-self: flex-start;
+  padding: var(--sp-2) 0;
+}

@@ -1,0 +1,121 @@
+.logs-root {
+  border: var(--border);
+  background: var(--c-dark);
+}
+
+.logs-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: var(--t-fast);
+}
+
+.logs-toggle:hover {
+  background: var(--c-mid);
+}
+
+.logs-toggle-arrow {
+  font-size: 8px;
+  color: var(--c-muted);
+  width: 10px;
+  flex-shrink: 0;
+}
+
+.logs-count {
+  margin-left: auto;
+  color: var(--c-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.logs-err-badge {
+  background: var(--c-orange);
+  color: var(--c-black);
+  padding: 1px 5px;
+  font-weight: 700;
+}
+
+.logs-body {
+  border-top: var(--border);
+}
+
+.logs-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--sp-2) var(--sp-4);
+  border-bottom: var(--border);
+}
+
+.logs-hint {
+  color: var(--c-dim);
+}
+
+.logs-copy {
+  font-size: 9px;
+  padding: 2px var(--sp-2);
+  border-color: var(--c-dim);
+}
+
+.logs-scroll {
+  max-height: 240px;
+  overflow-y: auto;
+  padding: var(--sp-2) 0;
+}
+
+.logs-empty {
+  padding: var(--sp-3) var(--sp-4);
+  color: var(--c-dim);
+}
+
+/* Log lines */
+.log-line {
+  display: grid;
+  grid-template-columns: 90px 44px 1fr;
+  gap: var(--sp-2);
+  padding: 2px var(--sp-4);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.6;
+  border-bottom: 1px solid transparent;
+}
+
+.log-line:hover {
+  background: var(--c-mid);
+}
+
+.log-time {
+  color: var(--c-dim);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.log-type {
+  color: var(--c-muted);
+  flex-shrink: 0;
+}
+
+.log-text {
+  color: var(--c-cream);
+  word-break: break-all;
+}
+
+/* Type-specific colors */
+.log-line--error .log-type,
+.log-line--error .log-text {
+  color: var(--c-orange);
+}
+
+.log-line--stderr .log-text {
+  color: #aaa;
+}
+
+.log-line--system .log-type {
+  color: var(--c-orange);
+  opacity: 0.6;
+}
