@@ -65,3 +65,13 @@
   align-self: flex-start;
   padding: var(--sp-2) 0;
 }
+
+.output-share-message {
+  padding: var(--sp-2) 0;
+}
+
+@media (max-width: 600px) {
+  .output-actions {
+    flex-direction: column;
+  }
+}
