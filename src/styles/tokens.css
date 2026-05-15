@@ -27,6 +27,7 @@
 
   /* Embedded screens — always dark (video, LED display) */
   --c-embed: #0A0A0A;
+  --c-embed-text: #F0EDE8;
 
   /* === LED / Display === */
   --c-led-on: var(--c-accent);
@@ -88,13 +89,13 @@
 
 /* ===== Theme 4: Green + Light ===== */
 [data-theme="4"] {
-  --c-accent: #39FF14;
-  --c-accent-hover: #66FF44;
+  --c-accent: #1A8F0F;
+  --c-accent-hover: #22B314;
   --c-accent-dim: #0A2200;
-  --c-accent-glow-04: rgba(57, 255, 20, 0.04);
-  --c-accent-glow-05: rgba(57, 255, 20, 0.05);
-  --c-accent-glow-20: rgba(57, 255, 20, 0.2);
-  --c-accent-glow-40: rgba(57, 255, 20, 0.4);
+  --c-accent-glow-04: rgba(26, 143, 15, 0.06);
+  --c-accent-glow-05: rgba(26, 143, 15, 0.08);
+  --c-accent-glow-20: rgba(26, 143, 15, 0.25);
+  --c-accent-glow-40: rgba(26, 143, 15, 0.45);
   --c-led-bg: #000700;
   --c-led-border: #001a00;
   --c-black: #F5F2ED;

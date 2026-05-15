@@ -9,7 +9,7 @@ import { useGifEncoder } from './hooks/useGifEncoder';
 import './styles/global.css';
 import './App.css';
 
-const APP_VERSION = 'v1.3.0';
+const APP_VERSION = __APP_VERSION__;
 
 const DEFAULT_SETTINGS = {
   fps: 10,
@@ -29,8 +29,13 @@ export default function App() {
   const [gifBlob, setGifBlob] = useState(null);
   const [convError, setConvError] = useState('');
   const [theme, setTheme] = useState(() => {
-    const saved = localStorage.getItem('eigie-theme');
-    return saved ? parseInt(saved, 10) : 1;
+    try {
+      const saved = localStorage.getItem('eigie-theme');
+      const parsed = saved ? parseInt(saved, 10) : 1;
+      return parsed >= 1 && parsed <= 4 ? parsed : 1;
+    } catch {
+      return 1;
+    }
   });
 
   const { progress, log, logs, error: encodeError, convert } = useGifEncoder();
