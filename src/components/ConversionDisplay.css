@@ -24,14 +24,14 @@
 }
 
 .conv-status-dot--active {
-  background: var(--c-orange);
-  box-shadow: 0 0 6px var(--c-orange);
+  background: var(--c-accent);
+  box-shadow: 0 0 6px var(--c-accent);
   animation: pulse 0.8s ease-in-out infinite alternate;
 }
 
 .conv-status-dot--done {
-  background: var(--c-green);
-  box-shadow: 0 0 6px var(--c-green);
+  background: var(--c-green-success);
+  box-shadow: 0 0 6px var(--c-green-success);
 }
 
 @keyframes pulse {
@@ -55,12 +55,12 @@
   font-family: var(--font-mono);
   font-size: 13px;
   font-weight: 500;
-  background: #070700;
-  border: 1px solid #1a1a00;
+  background: var(--c-led-bg);
+  border: 1px solid var(--c-led-border);
   padding: var(--sp-3) var(--sp-4);
   color: var(--c-led-on);
   letter-spacing: 0.05em;
-  text-shadow: 0 0 8px var(--c-orange);
+  text-shadow: 0 0 8px var(--c-accent);
   white-space: pre;
   overflow: hidden;
 }
@@ -84,16 +84,16 @@
 }
 
 .prog-seg--on {
-  background: var(--c-orange);
-  border-color: var(--c-orange);
-  box-shadow: 0 0 4px rgba(255, 105, 0, 0.4);
+  background: var(--c-accent);
+  border-color: var(--c-accent);
+  box-shadow: 0 0 4px var(--c-accent-glow-40);
 }
 
 .prog-pct {
   font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 700;
-  color: var(--c-orange);
+  color: var(--c-accent);
   letter-spacing: 0.05em;
   white-space: pre;
   margin-left: var(--sp-2);
@@ -116,7 +116,7 @@
   width: 10px;
   height: 10px;
   border: 1.5px solid rgba(0,0,0,0.3);
-  border-top-color: var(--c-black);
+  border-top-color: var(--c-contrast);
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
 }

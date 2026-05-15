@@ -110,10 +110,11 @@ export default function VideoPreview({ file, trim, onTrimChange, onReset }) {
       <div className="trim-root">
         <div className="trim-header">
           <span className="label">trim</span>
-          <span className="label trim-duration" style={{ color: trimDuration > 15 ? 'var(--c-orange)' : 'var(--c-muted)' }}>
+          <span className="label trim-duration" style={{ color: trimDuration > 15 ? 'var(--c-accent)' : 'var(--c-muted)' }}>
             {formatTime(trimDuration)}
             {trimDuration > 15 && ' · long gif ahead'}
           </span>
+
         </div>
 
         <div className="trim-track">
@@ -160,7 +161,12 @@ export default function VideoPreview({ file, trim, onTrimChange, onReset }) {
       </div>
 
       <div className="preview-footer">
-        <button className="btn btn--ghost" onClick={onReset}>← load different video</button>
+        <button className="btn btn--ghost" onClick={onReset}>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M14 8H2M2 8L7 3M2 8L7 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square"/>
+          </svg>
+          load different video
+        </button>
         <span className="label">{formatTime(duration)} total</span>
       </div>
     </div>
