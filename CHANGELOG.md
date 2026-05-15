@@ -4,6 +4,40 @@ All notable changes to **eigie** (everything is gif is everything) are documente
 
 ---
 
+## v1.3.1 — Bug Fixes
+
+### Play Button Visibility in Light Themes
+
+- Play/pause button on the video preview now uses `--c-embed-text` instead of `--c-cream` — remains visible in light themes where `--c-cream` maps to a dark color against the dark video embed background
+
+### localStorage Safety
+
+- Theme persistence wrapped in try-catch to prevent crashes in private browsing or when storage is disabled
+- Added range validation (1–4) on the stored theme value to guard against manually corrupted localStorage entries
+
+### Theme 4 Green Contrast
+
+- Changed theme 4 (green + light) accent from `#39FF14` to `#1A8F0F` — neon green was unreadable on white backgrounds. Adjusted glow opacities upward to compensate for the darker base color
+
+### Version Drift Prevention
+
+- App version is now injected at build time from `package.json` via Vite `define` (`__APP_VERSION__`), eliminating the need to update a hardcoded string in `App.jsx` on every release
+
+### Tooltip Clip Fix
+
+- File size tooltip on the output panel now opens downward (`top: calc(100% + 10px)`) instead of upward (`bottom: calc(100% + 10px)`), preventing it from clipping off the top of the viewport when the output header is near the top of the screen
+
+### Files Changed
+
+- `src/styles/tokens.css` — Added `--c-embed-text` token, theme 4 accent color and glow adjustments
+- `src/App.jsx` — localStorage try-catch, range validation, build-time version constant
+- `src/components/VideoPreview.css` — Play button uses `--c-embed-text`
+- `src/components/OutputPanel.css` — Tooltip direction changed to downward
+- `vite.config.js` — Added `define` block to inject `__APP_VERSION__` from package.json
+- `package.json` — Version bumped to 1.3.1
+
+---
+
 ## v1.3.0 — UI Tweaks & Theme System
 
 ### Theme System

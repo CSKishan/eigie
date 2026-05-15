@@ -75,7 +75,7 @@
 
 .output-size-tooltip {
   position: absolute;
-  bottom: calc(100% + 10px);
+  top: calc(100% + 10px);
   right: 0;
   background: var(--c-dark);
   border: var(--border-accent);

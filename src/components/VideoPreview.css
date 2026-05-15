@@ -45,7 +45,7 @@
   height: 36px;
   border: var(--border);
   background: rgba(10, 10, 10, 0.85);
-  color: var(--c-cream);
+  color: var(--c-embed-text);
   cursor: pointer;
   display: flex;
   align-items: center;
