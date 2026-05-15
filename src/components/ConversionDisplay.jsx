@@ -22,10 +22,15 @@ function ProgressBar({ value }) {
   );
 }
 
-export default function ConversionDisplay({ status, progress, log, onConvert, canConvert }) {
+export default function ConversionDisplay({
+  status, progress, log,
+  onConvert, onCancel, onAutoAdjust, canConvert,
+  expectedFrames, estimatedRamMb, tooManyFrames, maxFrames, fps,
+}) {
   const isConverting = status === 'converting';
   const isDone = status === 'done';
   const isError = status === 'error';
+  const showPreflight = expectedFrames > 0 && !isConverting && !isDone;
 
   const displayText = isConverting
     ? log.slice(0, 28)
@@ -33,6 +38,8 @@ export default function ConversionDisplay({ status, progress, log, onConvert, ca
     ? 'conversion complete'
     : isError
     ? 'error — see below'
+    : tooManyFrames
+    ? 'clip too long'
     : 'ready to convert';
 
   return (
@@ -51,6 +58,30 @@ export default function ConversionDisplay({ status, progress, log, onConvert, ca
       <div className="conv-body">
         <LEDDisplay text={displayText} />
         <ProgressBar value={isConverting ? progress : isDone ? 100 : 0} />
+
+        {showPreflight && (
+          <div className="conv-preflight">
+            <div className="conv-preflight-row">
+              <span className="label conv-preflight-key">frames</span>
+              <span className={`conv-preflight-val${tooManyFrames ? ' conv-preflight-val--warn' : ''}`}>
+                {expectedFrames}
+              </span>
+              <span className="label conv-preflight-key">est. ram</span>
+              <span className="conv-preflight-val">{estimatedRamMb} mb</span>
+            </div>
+            {tooManyFrames && (
+              <>
+                <p className="label conv-preflight-warn">
+                  limit is {maxFrames} frames — trim clip to under {Math.ceil(maxFrames / fps)}s
+                  at {fps}fps, or lower the fps setting
+                </p>
+                <button className="btn btn--ghost conv-adjust-btn" onClick={onAutoAdjust}>
+                  auto-adjust ↓
+                </button>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       <hr className="divider" />
@@ -69,6 +100,11 @@ export default function ConversionDisplay({ status, progress, log, onConvert, ca
             'convert to gif'
           )}
         </button>
+        {isConverting && (
+          <button className="btn btn--ghost conv-cancel-btn" onClick={onCancel}>
+            cancel
+          </button>
+        )}
       </div>
     </div>
   );

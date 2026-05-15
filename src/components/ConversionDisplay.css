@@ -103,6 +103,63 @@
 
 .conv-footer {
   padding: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+/* ===== PRE-FLIGHT PANEL ===== */
+
+.conv-preflight {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--c-dim);
+}
+
+.conv-preflight-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+}
+
+.conv-preflight-key {
+  color: var(--c-muted);
+  min-width: 44px;
+}
+
+.conv-preflight-val {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--c-cream);
+  font-variant-numeric: tabular-nums;
+  margin-right: var(--sp-3);
+}
+
+.conv-preflight-val--warn {
+  color: var(--c-accent);
+}
+
+.conv-preflight-warn {
+  color: var(--c-accent);
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+}
+
+.conv-adjust-btn {
+  align-self: flex-start;
+  padding: var(--sp-1) 0;
+}
+
+/* ===== CANCEL BUTTON ===== */
+
+.conv-cancel-btn {
+  width: 100%;
+  justify-content: center;
+  padding: var(--sp-3) var(--sp-5);
 }
 
 .conv-btn {

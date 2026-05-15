@@ -4,6 +4,58 @@ All notable changes to **eigie** (everything is gif is everything) are documente
 
 ---
 
+## v1.4.0 — Movie-to-GIF Guardrails
+
+### Root Cause: Why Large Videos Crashed
+
+gif.js buffers **all frames in RAM** before encoding begins. A 2-hour movie at 10fps produces ~69,600 frames; at 320×240 each frame is ~307 KB of ImageData, totalling ≈21 GB — the browser crashes before encoding even starts. This release adds the guard rails that prevent the crash while the streaming encoder (v1.4.1) is in development.
+
+### Hard Frame Cap
+
+- `MAX_FRAMES = 300` constant exported from `useGifEncoder.js` — equivalent to 30s at 10fps
+- If a clip would produce more than 300 frames the encoder throws a descriptive error (last line of defence); the UI blocks the convert button first
+- Error message tells the user exactly what to change: trim to `<{MAX_FRAMES / fps}s` at their current fps, or lower the fps setting
+
+### Pre-flight Estimate Panel
+
+- Frame count and estimated RAM usage shown in the output panel **before** conversion starts, giving users an at-a-glance read on what they're about to encode
+- Frame count highlighted in accent color when it exceeds the limit
+- Warning message shown inline when clip is too long, with the exact clip length threshold at the current fps
+
+### Auto-Adjust Button
+
+- One-click **auto-adjust** lowers fps (8 → 10 → 15 → 24, picking the highest that fits) to bring the frame count under the limit without losing more clip than necessary
+- If the clip is too long even at fps=8, the clip end is trimmed to `MAX_FRAMES / 8` seconds and fps is set to 8
+
+### Cancellation
+
+- **Cancel button** appears below the convert button during active encoding
+- Cancellation is checked at every frame in both the seek-based and playback-based extraction loops — stops within one frame
+- If cancel is clicked during the gif.js encoding phase, `gif.abort()` is called and the output is discarded
+- Cancelled conversions return cleanly to the previewing state with no error shown
+
+### Large-GIF Output Warning
+
+- After encoding completes, if the output GIF exceeds **10 MB** a contextual warning is shown: "consider a shorter clip or lower fps for easier sharing"
+
+### Extraction Loop Improvements
+
+- `extractFramesSeek` now yields every 30 frames (`setTimeout(0)`) to keep the UI responsive and allow cancellation checks to fire
+- Both extraction loops (`extractFramesSeek`, `extractFramesPlayback`) check `isCancelledRef` before each frame to stop promptly on cancel
+
+### Files Changed
+
+- `src/hooks/useGifEncoder.js` — `MAX_FRAMES`, `CancelError`, `isCancelledRef`, `gifInstanceRef`, `cancel()`, cancellation in both loops, post-extraction bail-out, gif.abort() on cancel, encoder-side cap guard
+- `src/App.jsx` — `videoMeta` state, `expectedFrames` / `estimatedRamMb` derivation, `handleCancel`, `handleAutoAdjust`, `CancelError` routing in `handleConvert`, new props passed to `ConversionDisplay` and `VideoPreview`
+- `src/components/ConversionDisplay.jsx` — Pre-flight panel (frame count, RAM estimate, warning, auto-adjust button), cancel button
+- `src/components/ConversionDisplay.css` — Pre-flight panel styles, cancel button styles, column footer layout
+- `src/components/VideoPreview.jsx` — `onMetadata` prop; calls back with `{ duration, width, height }` on video load
+- `src/components/OutputPanel.jsx` — Large-GIF warning (>10 MB)
+- `src/components/OutputPanel.css` — `.output-size-warn` style
+- `package.json` — Version bumped to 1.4.0
+
+---
+
 ## v1.3.2 — Tests & Responsive Fixes
 
 ### Test Infrastructure

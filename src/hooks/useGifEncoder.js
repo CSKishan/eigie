@@ -1,6 +1,14 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 import GIF from 'gif.js';
 
+// Hard cap on frames to prevent browser OOM crashes.
+// At 10fps this is 30 seconds; raised to 600 in v1.4.1 with omggif streaming encoder.
+export const MAX_FRAMES = 300;
+
+class CancelError extends Error {
+  constructor() { super('Conversion cancelled'); this.name = 'CancelError'; }
+}
+
 function ts() {
   return new Date().toISOString().slice(11, 23);
 }
@@ -86,6 +94,8 @@ export function useGifEncoder() {
 
   const logBuf = useRef([]);
   const flushTimer = useRef(null);
+  const isCancelledRef = useRef(false);
+  const gifInstanceRef = useRef(null);
 
   const flushLogs = useCallback(() => {
     const buf = logBuf.current;
@@ -121,12 +131,14 @@ export function useGifEncoder() {
 
   async function extractFramesSeek(video, canvas, ctx, clipStart, fps, totalFrames, gif, frameDelayMs, snapStep, frameState, pushLog, setProgress) {
     for (let i = 0; i < totalFrames; i++) {
+      if (isCancelledRef.current) break;
       const t = clipStart + (i / fps);
       await new Promise((resolve, reject) => {
         video.addEventListener('seeked', resolve, { once: true });
         video.addEventListener('error', () => reject(new Error('Seek failed')), { once: true });
         video.currentTime = t;
       });
+      if (isCancelledRef.current) break;
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       const added = addProcessedFrame(gif, ctx, canvas, frameDelayMs, frameState, snapStep);
 
@@ -134,8 +146,10 @@ export function useGifEncoder() {
       if (i % 10 === 0 || i === totalFrames - 1) {
         pushLog(`frame ${i + 1}/${totalFrames} (seek)${!added ? ' [dup]' : ''}`, 'system');
       }
+      // Yield every 30 frames so the UI can repaint and cancel checks can fire
+      if (i % 30 === 29) await new Promise(r => setTimeout(r, 0));
     }
-    return totalFrames;
+    return frameState.added + frameState.skipped;
   }
 
   function extractFramesPlayback(video, canvas, ctx, clipStart, clipEnd, fps, totalFrames, gif, frameDelayMs, snapStep, frameState, pushLog, setProgress) {
@@ -145,6 +159,12 @@ export function useGifEncoder() {
       let nextCaptureTime = clipStart;
 
       function onFrame(now, metadata) {
+        if (isCancelledRef.current) {
+          video.pause();
+          resolve(captured);
+          return;
+        }
+
         const t = metadata.mediaTime;
 
         while (nextCaptureTime <= t && captured < totalFrames) {
@@ -181,6 +201,7 @@ export function useGifEncoder() {
   }
 
   const convert = useCallback(async (file, trim, settings) => {
+    isCancelledRef.current = false;
     setError('');
     setProgress(0);
     logBuf.current = [];
@@ -211,6 +232,14 @@ export function useGifEncoder() {
     const clipLen = clipEnd - clipStart;
     const totalFrames = Math.max(1, Math.ceil(clipLen * fps));
     const { width, height } = computeDimensions(scale, video.videoWidth, video.videoHeight);
+
+    // Guard against browser OOM — this check is a safety net; App.jsx blocks the button first.
+    if (totalFrames > MAX_FRAMES) {
+      URL.revokeObjectURL(objectUrl);
+      throw new Error(
+        `Too many frames (${totalFrames}). Trim the clip to under ${Math.ceil(MAX_FRAMES / fps)}s at ${fps}fps, or lower the fps setting.`
+      );
+    }
 
     pushLogNow(`source: ${video.videoWidth}×${video.videoHeight}, ${clipLen.toFixed(2)}s`, 'system');
     pushLogNow(`output: ${width}×${height} @ ${fps}fps → ${totalFrames} frames`, 'system');
@@ -254,6 +283,13 @@ export function useGifEncoder() {
     }
 
     URL.revokeObjectURL(objectUrl);
+
+    // If cancelled during extraction, bail out before encoding starts.
+    if (isCancelledRef.current) {
+      pushLogNow('conversion cancelled', 'system');
+      throw new CancelError();
+    }
+
     const extractMs = performance.now() - t0;
     pushLogNow(`extracted ${framesExtracted} frames → ${frameState.added} unique, ${frameState.skipped} duplicates skipped`, 'system');
     pushLogNow(`extraction took ${(extractMs / 1000).toFixed(2)}s — encoding…`, 'system');
@@ -264,10 +300,16 @@ export function useGifEncoder() {
       setProgress(50 + Math.round(p * 49));
     });
 
+    gifInstanceRef.current = gif;
     const t1 = performance.now();
     const blob = await new Promise((resolve, reject) => {
       const timer = setTimeout(() => reject(new Error('Encoding timed out after 5 minutes')), 5 * 60 * 1000);
-      gif.on('finished', (b) => { clearTimeout(timer); resolve(b); });
+      gif.on('finished', (b) => {
+        clearTimeout(timer);
+        gifInstanceRef.current = null;
+        // If cancel was clicked during encoding, discard the result.
+        if (isCancelledRef.current) { reject(new CancelError()); } else { resolve(b); }
+      });
       gif.render();
     });
     const encodeMs = performance.now() - t1;
@@ -285,12 +327,22 @@ export function useGifEncoder() {
     try {
       return await convert(...args);
     } catch (err) {
-      const msg = err.message || String(err);
-      setError(msg);
-      pushLogNow(msg, 'error');
+      if (err.name !== 'CancelError') {
+        const msg = err.message || String(err);
+        setError(msg);
+        pushLogNow(msg, 'error');
+      }
       throw err;
     }
   }, [convert, pushLogNow]);
 
-  return { progress, log, logs, error, convert: convertWithError };
+  const cancel = useCallback(() => {
+    isCancelledRef.current = true;
+    if (gifInstanceRef.current) {
+      try { gifInstanceRef.current.abort(); } catch {}
+      gifInstanceRef.current = null;
+    }
+  }, []);
+
+  return { progress, log, logs, error, convert: convertWithError, cancel };
 }
