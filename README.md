@@ -2,6 +2,8 @@
 
 **everything is gif is everything**
 
+![alt text](img.png)
+
 A fully client-side video-to-GIF converter. Your video never leaves your device.
 
 Built with React + Vite and [gif.js](https://github.com/jnordberg/gif.js) for browser-based GIF encoding via Web Workers.
