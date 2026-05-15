@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import UploadZone from './components/UploadZone';
 import VideoPreview from './components/VideoPreview';
 import ControlPanel from './components/ControlPanel';
@@ -209,6 +210,7 @@ export default function App() {
         <span className="label">eigie · fully client-side · your video never leaves your device</span>
         <span className="label" style={{ color: 'var(--c-dim)' }}>{APP_VERSION} · gif.js · WebCodecs</span>
       </footer>
+      <Analytics />
     </div>
   );
 }
