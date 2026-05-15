@@ -5,7 +5,7 @@ import ControlPanel from './components/ControlPanel';
 import ConversionDisplay from './components/ConversionDisplay';
 import OutputPanel from './components/OutputPanel';
 import LogsPanel from './components/LogsPanel';
-import { useGifEncoder } from './hooks/useGifEncoder';
+import { useGifEncoder, computeDimensions, MAX_FRAMES } from './hooks/useGifEncoder';
 import './styles/global.css';
 import './App.css';
 
@@ -24,6 +24,7 @@ const DEFAULT_SETTINGS = {
 export default function App() {
   const [status, setStatus] = useState('idle');
   const [videoFile, setVideoFile] = useState(null);
+  const [videoMeta, setVideoMeta] = useState(null);
   const [trim, setTrim] = useState({ start: 0, end: 10 });
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [gifBlob, setGifBlob] = useState(null);
@@ -38,7 +39,18 @@ export default function App() {
     }
   });
 
-  const { progress, log, logs, error: encodeError, convert } = useGifEncoder();
+  const { progress, log, logs, error: encodeError, convert, cancel } = useGifEncoder();
+
+  // Pre-flight frame count and RAM estimate
+  const clipLen = trim.end - trim.start;
+  const expectedFrames = videoMeta ? Math.max(1, Math.ceil(clipLen * settings.fps)) : 0;
+  const tooManyFrames = expectedFrames > MAX_FRAMES;
+
+  let estimatedRamMb = 0;
+  if (videoMeta && expectedFrames > 0) {
+    const { width, height } = computeDimensions(settings.scale, videoMeta.width, videoMeta.height);
+    estimatedRamMb = Math.round(expectedFrames * width * height * 4 / (1024 * 1024));
+  }
 
   // Apply theme to document root
   useEffect(() => {
@@ -47,11 +59,12 @@ export default function App() {
     } else {
       document.documentElement.setAttribute('data-theme', String(theme));
     }
-    localStorage.setItem('eigie-theme', String(theme));
+    try { localStorage.setItem('eigie-theme', String(theme)); } catch {}
   }, [theme]);
 
   const handleFile = useCallback((file) => {
     setVideoFile(file);
+    setVideoMeta(null);
     setGifBlob(null);
     setConvError('');
     setStatus('previewing');
@@ -59,13 +72,14 @@ export default function App() {
 
   const handleReset = useCallback(() => {
     setVideoFile(null);
+    setVideoMeta(null);
     setGifBlob(null);
     setConvError('');
     setStatus('idle');
   }, []);
 
   const handleConvert = useCallback(async () => {
-    if (!videoFile) return;
+    if (!videoFile || tooManyFrames) return;
     setStatus('converting');
     setConvError('');
     try {
@@ -73,10 +87,37 @@ export default function App() {
       setGifBlob(blob);
       setStatus('done');
     } catch (err) {
-      setConvError(err.message);
-      setStatus('error');
+      if (err.name === 'CancelError') {
+        setStatus('previewing'); // Clean cancel — no error shown
+      } else {
+        setConvError(err.message);
+        setStatus('error');
+      }
     }
-  }, [videoFile, trim, settings, convert]);
+  }, [videoFile, trim, settings, convert, tooManyFrames]);
+
+  const handleCancel = useCallback(() => {
+    cancel();
+    // Status transitions to 'previewing' via the CancelError catch in handleConvert
+  }, [cancel]);
+
+  // Auto-adjust fps (and clip length if needed) to bring expectedFrames under MAX_FRAMES
+  const handleAutoAdjust = useCallback(() => {
+    const len = trim.end - trim.start;
+    const validFps = [8, 10, 15, 24];
+    const fpsOptions = validFps.filter(f => Math.ceil(len * f) <= MAX_FRAMES);
+
+    if (fpsOptions.length > 0) {
+      // Keep the clip, just lower fps to the highest that fits
+      const newFps = fpsOptions[fpsOptions.length - 1];
+      setSettings(s => ({ ...s, fps: newFps }));
+    } else {
+      // Clip is too long even at minimum fps — shorten it too
+      const maxLen = Math.floor(MAX_FRAMES / 8);
+      setTrim(t => ({ ...t, end: t.start + maxLen }));
+      setSettings(s => ({ ...s, fps: 8 }));
+    }
+  }, [trim]);
 
   return (
     <div className="app">
@@ -130,6 +171,7 @@ export default function App() {
                 trim={trim}
                 onTrimChange={setTrim}
                 onReset={handleReset}
+                onMetadata={setVideoMeta}
               />
             </div>
             <div className="app-col app-col--side">
@@ -139,7 +181,14 @@ export default function App() {
                 progress={progress}
                 log={log}
                 onConvert={handleConvert}
-                canConvert={status === 'previewing' || status === 'error'}
+                onCancel={handleCancel}
+                onAutoAdjust={handleAutoAdjust}
+                canConvert={(status === 'previewing' || status === 'error') && !tooManyFrames}
+                expectedFrames={expectedFrames}
+                estimatedRamMb={estimatedRamMb}
+                tooManyFrames={tooManyFrames}
+                maxFrames={MAX_FRAMES}
+                fps={settings.fps}
               />
             </div>
             <div className="app-logs">

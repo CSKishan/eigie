@@ -8,7 +8,7 @@ function formatTime(s) {
   return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}.${ms}`;
 }
 
-export default function VideoPreview({ file, trim, onTrimChange, onReset }) {
+export default function VideoPreview({ file, trim, onTrimChange, onReset, onMetadata }) {
   const videoRef = useRef(null);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
@@ -22,10 +22,14 @@ export default function VideoPreview({ file, trim, onTrimChange, onReset }) {
   }, [file]);
 
   const onLoadedMetadata = useCallback(() => {
-    const d = videoRef.current.duration;
+    const v = videoRef.current;
+    const d = v.duration;
     setDuration(d);
     onTrimChange({ start: 0, end: Math.min(d, 15) });
-  }, [onTrimChange]);
+    if (onMetadata) {
+      onMetadata({ duration: d, width: v.videoWidth, height: v.videoHeight });
+    }
+  }, [onTrimChange, onMetadata]);
 
   const onTimeUpdate = useCallback(() => {
     const t = videoRef.current?.currentTime ?? 0;

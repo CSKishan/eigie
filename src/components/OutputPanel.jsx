@@ -76,6 +76,12 @@ export default function OutputPanel({ gifBlob, onReset }) {
         </div>
       </div>
 
+      {gifSize > 10 * 1024 * 1024 && (
+        <p className="label output-size-warn">
+          ⚠ this gif is {formatFileSize(gifSize)} — consider a shorter clip or lower fps for easier sharing
+        </p>
+      )}
+
       <div className="output-actions">
         <button className="btn btn--primary output-dl-btn" onClick={download}>
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
