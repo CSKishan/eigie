@@ -5,6 +5,22 @@ function canShare() {
   return typeof navigator.share === 'function' && typeof navigator.canShare === 'function';
 }
 
+function formatFileSize(bytes) {
+  if (bytes >= 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} gb`;
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(2)} mb`;
+  if (bytes >= 1024) return `${(bytes / 1024).toFixed(0)} kb`;
+  return `${bytes} b`;
+}
+
+function allSizes(bytes) {
+  return [
+    { unit: 'gb', value: (bytes / (1024 * 1024 * 1024)).toFixed(6) },
+    { unit: 'mb', value: (bytes / (1024 * 1024)).toFixed(4) },
+    { unit: 'kb', value: (bytes / 1024).toFixed(2) },
+    { unit: 'bytes', value: bytes.toLocaleString() },
+  ];
+}
+
 export default function OutputPanel({ gifBlob, onReset }) {
   const [gifUrl, setGifUrl] = useState('');
   const [gifSize, setGifSize] = useState(0);
@@ -37,9 +53,20 @@ export default function OutputPanel({ gifBlob, onReset }) {
     <div className="output-root">
       <div className="output-header">
         <span className="label">result</span>
-        <span className="label output-size" style={{ color: 'var(--c-orange)' }}>
-          {(gifSize / 1024).toFixed(0)} kb
-        </span>
+        <div className="output-size-wrap">
+          <span className="label output-size" style={{ color: 'var(--c-accent)' }}>
+            {formatFileSize(gifSize)}
+          </span>
+          <div className="output-size-tooltip">
+            <span className="label tooltip-title">how big is this?</span>
+            {allSizes(gifSize).map(({ unit, value }) => (
+              <div key={unit} className="tooltip-row">
+                <span className="tooltip-unit">{unit}</span>
+                <span className="tooltip-value">{value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div className="output-preview">
@@ -67,7 +94,7 @@ export default function OutputPanel({ gifBlob, onReset }) {
       </div>
 
       {shareError && (
-        <p className="output-share-error label" style={{ color: 'var(--c-orange)' }}>
+        <p className="output-share-error label" style={{ color: 'var(--c-accent)' }}>
           {shareError}
         </p>
       )}
@@ -79,7 +106,10 @@ export default function OutputPanel({ gifBlob, onReset }) {
       )}
 
       <button className="btn btn--ghost output-reset" onClick={onReset}>
-        ← convert another video
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M14 8H2M2 8L7 3M2 8L7 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square"/>
+        </svg>
+        convert another video
       </button>
     </div>
   );

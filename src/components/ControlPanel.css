@@ -26,7 +26,7 @@
 
 .ctrl-led--on {
   background: var(--c-led-on);
-  box-shadow: 0 0 6px var(--c-orange);
+  box-shadow: 0 0 6px var(--c-accent);
   animation: blink 2s step-end infinite;
 }
 
@@ -80,13 +80,13 @@
 }
 
 .ctrl-seg--active {
-  background: var(--c-orange);
-  color: var(--c-black);
+  background: var(--c-accent);
+  color: var(--c-contrast);
 }
 
 .ctrl-seg--active:hover {
-  background: #FF8533;
-  color: var(--c-black);
+  background: var(--c-accent-hover);
+  color: var(--c-contrast);
 }
 
 /* Toggle */
@@ -102,7 +102,7 @@
 }
 
 .ctrl-toggle--on {
-  border-color: var(--c-orange);
+  border-color: var(--c-accent);
 }
 
 .ctrl-toggle-dot {
@@ -114,8 +114,8 @@
 }
 
 .ctrl-toggle--on .ctrl-toggle-dot {
-  background: var(--c-orange);
-  box-shadow: 0 0 4px var(--c-orange);
+  background: var(--c-accent);
+  box-shadow: 0 0 4px var(--c-accent);
 }
 
 .ctrl-toggle-label {
@@ -130,5 +130,5 @@
 }
 
 .ctrl-toggle--on .ctrl-toggle-label {
-  color: var(--c-orange);
+  color: var(--c-accent);
 }

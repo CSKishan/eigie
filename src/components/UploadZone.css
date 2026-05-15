@@ -35,12 +35,12 @@
 }
 
 .upload-zone--active {
-  border-color: var(--c-orange);
-  background: rgba(255, 105, 0, 0.04);
+  border-color: var(--c-accent);
+  background: var(--c-accent-glow-04);
 }
 
 .upload-zone--active .upload-icon {
-  color: var(--c-orange);
+  color: var(--c-accent);
 }
 
 .upload-icon {
@@ -72,7 +72,7 @@
   position: absolute;
   width: 10px;
   height: 10px;
-  border-color: var(--c-orange);
+  border-color: var(--c-accent);
   border-style: solid;
   transition: opacity var(--t-mid);
   opacity: 0;

@@ -1,6 +1,18 @@
 :root {
-  /* TE Color Palette */
+  /* TE Raw Palette */
   --c-orange: #FF6900;
+  --c-green: #39FF14;
+
+  /* === Accent (theme-aware) === */
+  --c-accent: #FF6900;
+  --c-accent-hover: #FF8533;
+  --c-accent-dim: #3D1800;
+  --c-accent-glow-04: rgba(255, 105, 0, 0.04);
+  --c-accent-glow-05: rgba(255, 105, 0, 0.05);
+  --c-accent-glow-20: rgba(255, 105, 0, 0.2);
+  --c-accent-glow-40: rgba(255, 105, 0, 0.4);
+
+  /* === Surfaces === */
   --c-black: #0A0A0A;
   --c-dark: #1A1A1A;
   --c-mid: #2A2A2A;
@@ -10,17 +22,25 @@
   --c-offwhite: #E8E4DC;
   --c-white: #FFFFFF;
 
-  /* LED / Display Colors */
-  --c-led-on: #FF6900;
-  --c-led-dim: #3D1800;
-  --c-led-off: #1A1A1A;
-  --c-green: #39FF14;
-  --c-green-dim: #0A2200;
+  /* Contrast — always dark, for text on accent backgrounds */
+  --c-contrast: #0A0A0A;
 
-  /* Typography */
+  /* Embedded screens — always dark (video, LED display) */
+  --c-embed: #0A0A0A;
+  --c-embed-text: #F0EDE8;
+
+  /* === LED / Display === */
+  --c-led-on: var(--c-accent);
+  --c-led-dim: var(--c-accent-dim);
+  --c-led-off: #1A1A1A;
+  --c-led-bg: #070700;
+  --c-led-border: #1a1a00;
+  --c-green-success: #39FF14;
+
+  /* === Typography === */
   --font-mono: 'JetBrains Mono', 'IBM Plex Mono', 'Courier New', monospace;
 
-  /* Spacing (8px grid) */
+  /* === Spacing (8px grid) === */
   --sp-1: 4px;
   --sp-2: 8px;
   --sp-3: 12px;
@@ -31,12 +51,60 @@
   --sp-8: 64px;
   --sp-9: 96px;
 
-  /* Border */
+  /* === Border === */
   --border: 1px solid var(--c-dim);
-  --border-orange: 1px solid var(--c-orange);
+  --border-accent: 1px solid var(--c-accent);
   --radius: 0px;
 
-  /* Transitions */
+  /* === Transitions === */
   --t-fast: 80ms ease;
   --t-mid: 160ms ease;
+}
+
+/* ===== Theme 2: Orange + Light ===== */
+[data-theme="2"] {
+  --c-black: #F5F2ED;
+  --c-dark: #FFFFFF;
+  --c-mid: #F0EDE8;
+  --c-dim: #D5D0C8;
+  --c-muted: #8A857D;
+  --c-cream: #1A1A1A;
+  --c-offwhite: #2A2A2A;
+  --c-white: #000000;
+  --c-led-off: #E8E4DC;
+}
+
+/* ===== Theme 3: Green + Dark ===== */
+[data-theme="3"] {
+  --c-accent: #39FF14;
+  --c-accent-hover: #66FF44;
+  --c-accent-dim: #0A2200;
+  --c-accent-glow-04: rgba(57, 255, 20, 0.04);
+  --c-accent-glow-05: rgba(57, 255, 20, 0.05);
+  --c-accent-glow-20: rgba(57, 255, 20, 0.2);
+  --c-accent-glow-40: rgba(57, 255, 20, 0.4);
+  --c-led-bg: #000700;
+  --c-led-border: #001a00;
+}
+
+/* ===== Theme 4: Green + Light ===== */
+[data-theme="4"] {
+  --c-accent: #1A8F0F;
+  --c-accent-hover: #22B314;
+  --c-accent-dim: #0A2200;
+  --c-accent-glow-04: rgba(26, 143, 15, 0.06);
+  --c-accent-glow-05: rgba(26, 143, 15, 0.08);
+  --c-accent-glow-20: rgba(26, 143, 15, 0.25);
+  --c-accent-glow-40: rgba(26, 143, 15, 0.45);
+  --c-led-bg: #000700;
+  --c-led-border: #001a00;
+  --c-black: #F5F2ED;
+  --c-dark: #FFFFFF;
+  --c-mid: #F0EDE8;
+  --c-dim: #D5D0C8;
+  --c-muted: #8A857D;
+  --c-cream: #1A1A1A;
+  --c-offwhite: #2A2A2A;
+  --c-white: #000000;
+  --c-led-off: #E8E4DC;
 }

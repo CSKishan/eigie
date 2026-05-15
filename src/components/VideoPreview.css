@@ -17,12 +17,12 @@
 }
 
 .preview-size {
-  color: var(--c-orange);
+  color: var(--c-accent);
 }
 
 .preview-video-wrap {
   position: relative;
-  background: var(--c-black);
+  background: var(--c-embed);
   border: var(--border);
   aspect-ratio: 16/9;
   display: flex;
@@ -45,7 +45,7 @@
   height: 36px;
   border: var(--border);
   background: rgba(10, 10, 10, 0.85);
-  color: var(--c-cream);
+  color: var(--c-embed-text);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -54,8 +54,8 @@
 }
 
 .preview-play-btn:hover {
-  border-color: var(--c-orange);
-  color: var(--c-orange);
+  border-color: var(--c-accent);
+  color: var(--c-accent);
 }
 
 /* ===== TRIM ===== */
@@ -87,9 +87,9 @@
   position: absolute;
   top: 0;
   height: 100%;
-  background: rgba(255, 105, 0, 0.2);
-  border-left: 2px solid var(--c-orange);
-  border-right: 2px solid var(--c-orange);
+  background: var(--c-accent-glow-20);
+  border-left: 2px solid var(--c-accent);
+  border-right: 2px solid var(--c-accent);
   pointer-events: none;
 }
 
@@ -112,10 +112,31 @@
   height: 100%;
   opacity: 0;
   cursor: ew-resize;
-  pointer-events: auto;
+  pointer-events: none;
   -webkit-appearance: none;
   appearance: none;
   margin: 0;
+  background: transparent;
+}
+
+/* Only the thumb captures pointer events — prevents the
+   top input's track from blocking the bottom input entirely */
+.trim-handle::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: auto;
+  width: 20px;
+  height: 24px;
+  cursor: ew-resize;
+}
+
+.trim-handle::-moz-range-thumb {
+  pointer-events: auto;
+  width: 20px;
+  height: 24px;
+  cursor: ew-resize;
+  border: none;
+  background: transparent;
 }
 
 .trim-handle--end {

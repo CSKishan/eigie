@@ -34,8 +34,8 @@
 }
 
 .logs-err-badge {
-  background: var(--c-orange);
-  color: var(--c-black);
+  background: var(--c-accent);
+  color: var(--c-contrast);
   padding: 1px 5px;
   font-weight: 700;
 }
@@ -108,7 +108,7 @@
 /* Type-specific colors */
 .log-line--error .log-type,
 .log-line--error .log-text {
-  color: var(--c-orange);
+  color: var(--c-accent);
 }
 
 .log-line--stderr .log-text {
@@ -116,6 +116,6 @@
 }
 
 .log-line--system .log-type {
-  color: var(--c-orange);
+  color: var(--c-accent);
   opacity: 0.6;
 }

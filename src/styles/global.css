@@ -19,6 +19,7 @@ body {
   color: var(--c-cream);
   min-height: 100vh;
   overflow-x: hidden;
+  transition: background var(--t-mid), color var(--t-mid);
 }
 
 #root {
@@ -74,15 +75,15 @@ body {
 }
 
 .btn--primary {
-  background: var(--c-orange);
-  border-color: var(--c-orange);
-  color: var(--c-black);
+  background: var(--c-accent);
+  border-color: var(--c-accent);
+  color: var(--c-contrast);
 }
 
 .btn--primary:hover {
-  background: #FF8533;
-  border-color: #FF8533;
-  color: var(--c-black);
+  background: var(--c-accent-hover);
+  border-color: var(--c-accent-hover);
+  color: var(--c-contrast);
 }
 
 .btn--ghost {
@@ -103,7 +104,7 @@ body {
 
 .btn--whatsapp:hover {
   background: #25D366;
-  color: var(--c-black);
+  color: var(--c-contrast);
 }
 
 .btn:disabled {

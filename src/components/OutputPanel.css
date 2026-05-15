@@ -12,8 +12,8 @@
 
 .output-preview {
   position: relative;
-  border: var(--border-orange);
-  background: var(--c-black);
+  border: var(--border-accent);
+  background: var(--c-embed);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -31,12 +31,12 @@
   position: absolute;
   top: var(--sp-2);
   right: var(--sp-2);
-  background: var(--c-orange);
+  background: var(--c-accent);
   padding: 2px 6px;
 }
 
 .output-badge .label {
-  color: var(--c-black);
+  color: var(--c-contrast);
   font-weight: 700;
 }
 
@@ -64,6 +64,62 @@
 .output-reset {
   align-self: flex-start;
   padding: var(--sp-2) 0;
+}
+
+/* ===== FILE SIZE TOOLTIP ===== */
+
+.output-size-wrap {
+  position: relative;
+  cursor: default;
+}
+
+.output-size-tooltip {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: var(--c-dark);
+  border: var(--border-accent);
+  padding: var(--sp-3) var(--sp-4);
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  white-space: nowrap;
+  z-index: 10;
+  pointer-events: none;
+  min-width: 180px;
+}
+
+.output-size-wrap:hover .output-size-tooltip {
+  display: flex;
+}
+
+.tooltip-title {
+  color: var(--c-accent);
+  margin-bottom: 2px;
+}
+
+.tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--sp-5);
+}
+
+.tooltip-unit {
+  color: var(--c-muted);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.tooltip-value {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--c-cream);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 .output-share-message {

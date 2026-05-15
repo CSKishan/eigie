@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import UploadZone from './components/UploadZone';
 import VideoPreview from './components/VideoPreview';
 import ControlPanel from './components/ControlPanel';
@@ -8,6 +8,8 @@ import LogsPanel from './components/LogsPanel';
 import { useGifEncoder } from './hooks/useGifEncoder';
 import './styles/global.css';
 import './App.css';
+
+const APP_VERSION = __APP_VERSION__;
 
 const DEFAULT_SETTINGS = {
   fps: 10,
@@ -26,8 +28,27 @@ export default function App() {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [gifBlob, setGifBlob] = useState(null);
   const [convError, setConvError] = useState('');
+  const [theme, setTheme] = useState(() => {
+    try {
+      const saved = localStorage.getItem('eigie-theme');
+      const parsed = saved ? parseInt(saved, 10) : 1;
+      return parsed >= 1 && parsed <= 4 ? parsed : 1;
+    } catch {
+      return 1;
+    }
+  });
 
   const { progress, log, logs, error: encodeError, convert } = useGifEncoder();
+
+  // Apply theme to document root
+  useEffect(() => {
+    if (theme === 1) {
+      document.documentElement.removeAttribute('data-theme');
+    } else {
+      document.documentElement.setAttribute('data-theme', String(theme));
+    }
+    localStorage.setItem('eigie-theme', String(theme));
+  }, [theme]);
 
   const handleFile = useCallback((file) => {
     setVideoFile(file);
@@ -69,10 +90,19 @@ export default function App() {
             <span className="label">everything is gif is everything</span>
           </div>
           <div className="app-header-leds">
-            <span className="header-led header-led--on" />
-            <span className="header-led" />
-            <span className="header-led" />
-            <span className="header-led" />
+            {[1, 2, 3, 4].map((t) => (
+              <span
+                key={t}
+                className={`header-led${theme === t ? ' header-led--active' : ''}`}
+                data-led={t}
+                onClick={() => setTheme(t)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && setTheme(t)}
+                aria-label={`Theme ${t}`}
+                title={`Theme ${t}`}
+              />
+            ))}
           </div>
         </div>
       </header>
@@ -80,7 +110,7 @@ export default function App() {
       <main className="app-main">
         {(convError || encodeError) && (
           <div className="app-error">
-            <span className="label" style={{ color: 'var(--c-orange)' }}>
+            <span className="label" style={{ color: 'var(--c-accent)' }}>
               {convError || encodeError}
             </span>
           </div>
@@ -128,7 +158,7 @@ export default function App() {
 
       <footer className="app-footer">
         <span className="label">eigie · fully client-side · your video never leaves your device</span>
-        <span className="label" style={{ color: 'var(--c-dim)' }}>gif.js · WebCodecs</span>
+        <span className="label" style={{ color: 'var(--c-dim)' }}>{APP_VERSION} · gif.js · WebCodecs</span>
       </footer>
     </div>
   );
