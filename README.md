@@ -4,6 +4,8 @@
 
 ![alt text](img.png)
 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/E1E11RQ6PT)
+
 A fully client-side video-to-GIF converter. Your video never leaves your device.
 
 Built with React + Vite and [gif.js](https://github.com/jnordberg/gif.js) for browser-based GIF encoding via Web Workers.
