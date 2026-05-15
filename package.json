@@ -13,6 +13,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "gif.js": "^0.2.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
