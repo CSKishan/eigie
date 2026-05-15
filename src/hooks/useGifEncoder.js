@@ -413,5 +413,16 @@ export function useGifEncoder() {
     // gifenc is synchronous — no worker to abort.
   }, []);
 
-  return { progress, log, logs, error, convert: convertWithError, cancel };
+  // Exposed so the FFmpeg path (bypassing convert()) can drive the same UI.
+  const resetState = useCallback(() => {
+    isCancelledRef.current = false;
+    setProgress(0);
+    setLog('');
+    setError('');
+    logBuf.current = [];
+    if (flushTimer.current) { clearTimeout(flushTimer.current); flushTimer.current = null; }
+    setLogs([]);
+  }, []);
+
+  return { progress, log, logs, error, convert: convertWithError, cancel, setProgress, pushLogNow, resetState };
 }

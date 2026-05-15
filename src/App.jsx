@@ -6,6 +6,7 @@ import ConversionDisplay from './components/ConversionDisplay';
 import OutputPanel from './components/OutputPanel';
 import LogsPanel from './components/LogsPanel';
 import { useGifEncoder, computeDimensions, MAX_FRAMES } from './hooks/useGifEncoder';
+import { convertWithFFmpeg, MAX_FILE_SIZE_HD } from './hooks/useFFmpegEncoder';
 import './styles/global.css';
 import './App.css';
 
@@ -18,6 +19,7 @@ const DEFAULT_SETTINGS = {
   dither: false,
   colors: 256,
   lossy: 0,
+  encoder: 'standard', // 'standard' | 'hd' (FFmpeg.wasm, file ≤ 200 MB)
 };
 
 // status: idle | previewing | converting | done | error
@@ -39,7 +41,13 @@ export default function App() {
     }
   });
 
-  const { progress, log, logs, error: encodeError, convert, cancel } = useGifEncoder();
+  const { progress, log, logs, error: encodeError, convert, cancel, setProgress, pushLogNow, resetState } = useGifEncoder();
+
+  // FFmpeg Tier 2: phase tracks 'loading' | 'encoding' | null for LED display
+  const [ffmpegPhase, setFfmpegPhase] = useState(null);
+
+  // HD mode is only available when the file fits in FFmpeg's in-memory FS (≤ 200 MB)
+  const canUseHD = !!(videoFile && videoFile.size <= MAX_FILE_SIZE_HD);
 
   // Pre-flight frame count and RAM estimate
   const clipLen = trim.end - trim.start;
@@ -82,11 +90,29 @@ export default function App() {
     if (!videoFile || tooManyFrames) return;
     setStatus('converting');
     setConvError('');
+
     try {
-      const blob = await convert(videoFile, trim, settings);
+      let blob;
+
+      if (settings.encoder === 'hd' && canUseHD) {
+        // ── Tier 2: FFmpeg.wasm ────────────────────────────────────────────────
+        // Reset the shared progress/log state and drive it via callbacks.
+        resetState();
+        blob = await convertWithFFmpeg(videoFile, trim, settings, {
+          log: pushLogNow,
+          setProgress,
+          setPhase: setFfmpegPhase,
+        });
+        setFfmpegPhase(null);
+      } else {
+        // ── Tier 1: gifenc streaming ───────────────────────────────────────────
+        blob = await convert(videoFile, trim, settings);
+      }
+
       setGifBlob(blob);
       setStatus('done');
     } catch (err) {
+      setFfmpegPhase(null);
       if (err.name === 'CancelError') {
         setStatus('previewing'); // Clean cancel — no error shown
       } else {
@@ -94,7 +120,8 @@ export default function App() {
         setStatus('error');
       }
     }
-  }, [videoFile, trim, settings, convert, tooManyFrames]);
+  }, [videoFile, trim, settings, convert, tooManyFrames, canUseHD,
+    resetState, pushLogNow, setProgress]);
 
   const handleCancel = useCallback(() => {
     cancel();
@@ -175,11 +202,12 @@ export default function App() {
               />
             </div>
             <div className="app-col app-col--side">
-              <ControlPanel settings={settings} onChange={setSettings} />
+              <ControlPanel settings={settings} onChange={setSettings} canUseHD={canUseHD} />
               <ConversionDisplay
                 status={status}
                 progress={progress}
                 log={log}
+                ffmpegPhase={ffmpegPhase}
                 onConvert={handleConvert}
                 onCancel={handleCancel}
                 onAutoAdjust={handleAutoAdjust}
@@ -207,7 +235,7 @@ export default function App() {
 
       <footer className="app-footer">
         <span className="label">eigie · fully client-side · your video never leaves your device</span>
-        <span className="label" style={{ color: 'var(--c-dim)' }}>{APP_VERSION} · gif.js · WebCodecs</span>
+        <span className="label" style={{ color: 'var(--c-dim)' }}>{APP_VERSION} · gifenc · FFmpeg.wasm</span>
       </footer>
     </div>
   );

@@ -22,8 +22,15 @@ const LOSSY_OPTIONS = [
   { label: 'med', value: 8 },
   { label: 'heavy', value: 16 },
 ];
+const ENCODER_OPTIONS = [
+  { label: 'standard', value: 'standard', title: 'gifenc — streams frames, works on any file size' },
+  { label: 'hd', value: 'hd', title: 'FFmpeg palettegen — optimal palette, file ≤ 200 MB' },
+];
 
-function SegmentedControl({ label, options, value, onChange, getLabel, getValue }) {
+/**
+ * @param {function|null} isOptionDisabled  - receives raw option object, returns bool
+ */
+function SegmentedControl({ label, options, value, onChange, getLabel, getValue, isOptionDisabled }) {
   return (
     <div className="ctrl-block">
       <span className="label">{label}</span>
@@ -32,11 +39,14 @@ function SegmentedControl({ label, options, value, onChange, getLabel, getValue 
           const v = getValue ? getValue(opt) : opt;
           const l = getLabel ? getLabel(opt) : opt;
           const active = v === value;
+          const disabled = isOptionDisabled ? isOptionDisabled(opt) : false;
           return (
             <button
               key={v}
-              className={`ctrl-seg ${active ? 'ctrl-seg--active' : ''}`}
-              onClick={() => onChange(v)}
+              className={`ctrl-seg${active ? ' ctrl-seg--active' : ''}${disabled ? ' ctrl-seg--disabled' : ''}`}
+              onClick={() => !disabled && onChange(v)}
+              disabled={disabled}
+              title={opt.title ?? undefined}
               type="button"
             >
               {l}
@@ -48,7 +58,7 @@ function SegmentedControl({ label, options, value, onChange, getLabel, getValue 
   );
 }
 
-export default function ControlPanel({ settings, onChange }) {
+export default function ControlPanel({ settings, onChange, canUseHD }) {
   return (
     <div className="ctrl-root panel">
       <div className="ctrl-header">
@@ -116,6 +126,16 @@ export default function ControlPanel({ settings, onChange }) {
             <span className="ctrl-toggle-label">{settings.dither ? 'floyd' : 'off'}</span>
           </button>
         </div>
+
+        <SegmentedControl
+          label="encoder"
+          options={ENCODER_OPTIONS}
+          value={settings.encoder}
+          onChange={(v) => onChange({ ...settings, encoder: v })}
+          getLabel={(o) => o.label}
+          getValue={(o) => o.value}
+          isOptionDisabled={(o) => o.value === 'hd' && !canUseHD}
+        />
       </div>
     </div>
   );

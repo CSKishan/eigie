@@ -4,7 +4,7 @@ All notable changes to **eigie** (everything is gif is everything) are documente
 
 ---
 
-## v1.4.1 — Streaming GIF Encoder (gifenc)
+## v1.4.1 — Streaming Encoder (gifenc) + FFmpeg HD Tier
 
 ### Why gif.js Had to Go
 
@@ -36,15 +36,43 @@ Duplicate-frame detection accumulates delay into `pendingDelayMs` rather than ed
 
 ### Settings Changes
 
-- **quality** and **dither** settings are no-ops in v1.4.1. gifenc's PNN quantiser has no equivalent quality/sample knob and does not include dithering. Both settings are preserved in the UI for v1.4.2 where FFmpeg.wasm HD mode will use them.
-- All other settings (fps, width, colors, lossy/snap) work identically.
+- **quality** and **dither** settings are no-ops for the standard encoder. gifenc's PNN quantiser has no equivalent quality/sample knob and does not include dithering. In HD mode both are passed to FFmpeg's `paletteuse` filter.
+- All other settings (fps, width, colors, lossy/snap) work identically for both tiers.
+
+### New: FFmpeg.wasm HD Encoder (Tier 2)
+
+An optional **HD encoder** is now available via a new **encoder** segmented control in the settings panel:
+
+| Mode | Engine | Best for |
+|------|--------|----------|
+| standard | gifenc (streaming, in-process) | Any file size, instant start |
+| hd | FFmpeg.wasm + palettegen | Files ≤ 200 MB, best colour quality |
+
+**How HD mode works:**
+
+- `@ffmpeg/ffmpeg` + `@ffmpeg/core` (single-thread WASM) are lazy-loaded from CDN (~25 MB) only when HD mode is first used, then browser-cached indefinitely
+- The single-thread core avoids the `SharedArrayBuffer` requirement, so no special COOP/COEP server headers are needed
+- FFmpeg's `palettegen` filter analyses the entire trimmed clip to derive an optimal global 256-colour palette; `paletteuse` with `dither=bayer:bayer_scale=5` produces visibly better gradients and skin tones than per-frame NeuQuant quantisation
+- The file limit of 200 MB comes from FFmpeg.wasm's MEMFS: the entire input must be copied to an in-memory virtual filesystem. Files larger than 200 MB use the standard tier automatically; the HD button is disabled with a tooltip explaining why
+- During load the LED display shows "loading HD encoder…"; once cached, subsequent uses start immediately at "encoding…"
+
+**Architecture:**
+- `src/hooks/useFFmpegEncoder.js` — singleton FFmpeg loader + `convertWithFFmpeg()` function
+- `App.jsx` routes to `convertWithFFmpeg` when `settings.encoder === 'hd' && canUseHD`; otherwise falls back to `convert()` (gifenc)
+- `useGifEncoder` exposes `setProgress`, `pushLogNow`, and `resetState` so the FFmpeg path drives the same progress bar and log panel
 
 ### Files Changed
 
-- `src/hooks/useGifEncoder.js` — gifenc import, `processAndEncodeFrame()`, MAX_FRAMES=600, transparent delta, pending delay accumulation, synchronous `gif.finish()/gif.bytes()`, `gifInstanceRef` removed
+- `src/hooks/useGifEncoder.js` — gifenc import, `processAndEncodeFrame()`, MAX_FRAMES=600, transparent delta, pending delay accumulation, synchronous `gif.finish()/gif.bytes()`, `gifInstanceRef` removed; `setProgress`/`pushLogNow`/`resetState` exported
+- `src/hooks/useFFmpegEncoder.js` — **new**: FFmpeg singleton loader, `convertWithFFmpeg()` with palettegen+paletteuse filter chain
+- `src/components/ControlPanel.jsx` — encoder segmented control (standard | hd) with `canUseHD` prop; disabled state for HD when file > 200 MB
+- `src/components/ControlPanel.css` — `.ctrl-seg--disabled` style
+- `src/components/ConversionDisplay.jsx` — `ffmpegPhase` prop; LED shows "loading HD encoder…" during WASM download
+- `src/App.jsx` — two-tier routing in `handleConvert`, `canUseHD` derived from file size, `ffmpegPhase` state, footer updated
+- `vite.config.js` — `optimizeDeps.exclude` for `@ffmpeg/ffmpeg` and `@ffmpeg/util`
 - `public/gif.worker.js` — **deleted** (no longer needed)
 - `index.html` — gif.worker.js preload removed
-- `package.json` — `gifenc ^1.0.3` added, `gif.js` removed, version → 1.4.1
+- `package.json` — `gifenc ^1.0.3`, `@ffmpeg/ffmpeg ^0.12.15`, `@ffmpeg/util ^0.12.2` added; `gif.js` removed; version → 1.4.1
 
 ---
 
