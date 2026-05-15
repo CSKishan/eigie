@@ -169,6 +169,8 @@ export function useGifEncoder() {
       }
 
       video.addEventListener('error', () => reject(new Error('Playback failed')), { once: true });
+      video.addEventListener("ended", () => { resolve(captured); // video ended before rvfc loop could terminate — resolve with whatever was captured
+      }, {once: true});
       video.currentTime = clipStart;
       video.addEventListener('seeked', () => {
         video.playbackRate = 2;
