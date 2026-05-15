@@ -4,6 +4,55 @@ All notable changes to **eigie** (everything is gif is everything) are documente
 
 ---
 
+## v1.3.0 — UI Tweaks & Theme System
+
+### Theme System
+
+- The 4 header LED dots (top-right corner) are now clickable theme selectors:
+  1. **Orange + Dark** — original theme, orange accent on dark backgrounds
+  2. **Orange + Light** — orange accent on warm cream/white TE-inspired backgrounds
+  3. **Green + Dark** — TE green accent on dark backgrounds
+  4. **Green + Light** — TE green accent on warm cream/white backgrounds
+- Introduced `--c-accent` semantic token system — all accent-colored UI elements (buttons, borders, LEDs, progress bars, toggles, badges, glows, error text) respond to the active theme
+- Light themes override surface variables (`--c-black`, `--c-dark`, `--c-mid`, `--c-dim`, `--c-cream`, etc.) for a full palette inversion
+- Embedded screens (video player, LED display, GIF preview) stay dark in all themes via dedicated `--c-embed` token
+- Text-on-accent elements use `--c-contrast` (always dark) to remain readable regardless of theme
+- Theme selection persists across sessions via `localStorage`
+- Font family (JetBrains Mono) remains unchanged across all themes
+
+### Version Display
+
+- App version (`v1.3.0`) is now shown in the bottom-right footer, before the `gif.js · WebCodecs` label
+
+### Smart File Size Display
+
+- GIF file size now auto-scales to the most readable unit (bytes, KB, MB, GB) instead of always showing KB
+- Hovering the file size reveals a TE-styled tooltip showing the size in all four units simultaneously (GB with 6 decimal places, MB with 4, KB with 2, and exact byte count with commas) — an intentionally over-engineered breakdown
+
+### Back Arrow Improvements
+
+- Replaced the unicode `←` character with a proper SVG arrow icon (16px) in both "load different video" and "convert another video" buttons
+- Arrow is properly vertically centered with the button text via flexbox alignment
+
+### Files Changed
+
+- `src/styles/tokens.css` — Theme-aware semantic tokens, 4 theme override blocks
+- `src/styles/global.css` — Accent and contrast variable usage, body transition
+- `src/App.jsx` — Theme state with localStorage, clickable LED theme selectors, version in footer
+- `src/App.css` — Header LED theme dot styles with per-dot colors and active glow
+- `src/components/OutputPanel.jsx` — Smart file size formatting, hover tooltip, SVG back arrow
+- `src/components/OutputPanel.css` — Tooltip styles, accent token usage
+- `src/components/VideoPreview.jsx` — SVG back arrow, accent token for trim warning
+- `src/components/VideoPreview.css` — Accent token usage, embed bg for video
+- `src/components/ControlPanel.css` — Accent and contrast token usage
+- `src/components/ConversionDisplay.css` — LED display vars, accent tokens, contrast spinner
+- `src/components/UploadZone.jsx` — Accent token for error text
+- `src/components/UploadZone.css` — Accent token usage
+- `src/components/LogsPanel.css` — Accent and contrast token usage
+- `package.json` — Version bumped to 1.3.0
+
+---
+
 ## v1.2 — GIF Size Optimizations
 
 Focused on drastically reducing GIF output file size. A video that previously produced a 3 MB GIF now outputs 400-800 KB with default settings — a **4-7x reduction**.

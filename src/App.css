@@ -14,6 +14,7 @@
   position: sticky;
   top: 0;
   z-index: 100;
+  transition: background var(--t-mid);
 }
 
 .app-header-inner {
@@ -35,7 +36,7 @@
 
 .app-logo-mark {
   font-size: 10px;
-  color: var(--c-orange);
+  color: var(--c-accent);
 }
 
 .app-logo-text {
@@ -50,6 +51,8 @@
   flex: 1;
 }
 
+/* ===== HEADER THEME LEDs ===== */
+
 .app-header-leds {
   display: flex;
   gap: 6px;
@@ -57,16 +60,48 @@
 }
 
 .header-led {
-  width: 5px;
-  height: 5px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: var(--c-dim);
+  cursor: pointer;
+  transition: transform var(--t-fast), box-shadow var(--t-fast);
+  border: 1.5px solid transparent;
 }
 
-.header-led--on {
-  background: var(--c-orange);
-  box-shadow: 0 0 5px var(--c-orange);
-  animation: blink 3s step-end infinite;
+.header-led:hover {
+  transform: scale(1.4);
+}
+
+/* Per-theme dot colors */
+.header-led[data-led="1"] {
+  background: #FF6900;
+  border-color: #FF6900;
+}
+
+.header-led[data-led="2"] {
+  background: #F5F2ED;
+  border-color: #FF6900;
+}
+
+.header-led[data-led="3"] {
+  background: #39FF14;
+  border-color: #39FF14;
+}
+
+.header-led[data-led="4"] {
+  background: #F5F2ED;
+  border-color: #39FF14;
+}
+
+/* Active glow */
+.header-led--active[data-led="1"],
+.header-led--active[data-led="2"] {
+  box-shadow: 0 0 6px #FF6900, 0 0 14px rgba(255, 105, 0, 0.3);
+}
+
+.header-led--active[data-led="3"],
+.header-led--active[data-led="4"] {
+  box-shadow: 0 0 6px #39FF14, 0 0 14px rgba(57, 255, 20, 0.3);
 }
 
 /* ===== MAIN ===== */
@@ -84,9 +119,9 @@
 
 /* Error banner */
 .app-error {
-  border: 1px solid var(--c-orange);
+  border: 1px solid var(--c-accent);
   padding: var(--sp-3) var(--sp-4);
-  background: rgba(255, 105, 0, 0.05);
+  background: var(--c-accent-glow-05);
 }
 
 /* Upload state */
@@ -131,6 +166,7 @@
   align-items: center;
   background: var(--c-dark);
   max-width: 100%;
+  transition: background var(--t-mid);
 }
 
 /* ===== RESPONSIVE ===== */

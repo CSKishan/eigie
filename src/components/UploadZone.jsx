@@ -90,7 +90,7 @@ export default function UploadZone({ onFile }) {
 
       {error && (
         <div className="upload-error">
-          <span className="label" style={{ color: 'var(--c-orange)' }}>{error}</span>
+          <span className="label" style={{ color: 'var(--c-accent)' }}>{error}</span>
         </div>
       )}
     </div>
