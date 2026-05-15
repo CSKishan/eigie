@@ -1,7 +1,7 @@
 {
   "name": "eigie",
   "private": true,
-  "version": "1.4.0",
+  "version": "1.4.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -13,7 +13,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "gif.js": "^0.2.0",
+    "gifenc": "^1.0.3",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
   },

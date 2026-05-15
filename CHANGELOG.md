@@ -4,6 +4,50 @@ All notable changes to **eigie** (everything is gif is everything) are documente
 
 ---
 
+## v1.4.1 — Streaming GIF Encoder (gifenc)
+
+### Why gif.js Had to Go
+
+gif.js buffers **every raw frame in RAM** before encoding starts. At 600 frames × 320×180 × 4 bytes ≈ 165 MB — and that's before LZW encoding even begins. For movie clips this was the proximate cause of OOM crashes that v1.4.0's guardrails could only partially hide.
+
+### New Encoder: gifenc (streaming)
+
+Replaced gif.js with **gifenc** (<10 KB), a pure-JS GIF encoder that:
+
+- Writes each frame to the output buffer immediately, then discards the raw pixel data
+- Memory at any point: ~1 frame of RGBA (~225 KB) + the growing compressed GIF output — not O(n frames)
+- No web workers, no 16 KB script to serve — encoding is synchronous and runs in-line with extraction
+- Eliminates the separate 50–99% "encoding phase" entirely; progress now reflects extraction only
+
+### MAX_FRAMES Raised: 300 → 600
+
+Because memory is now bounded per-frame, the hard cap is safely doubled to **600 frames** (60 seconds at 10fps). Previous 30s clips that hit the guardrail can now be processed normally.
+
+### Transparency Delta Preserved
+
+The size optimisation from v1.2 (unchanged pixels rendered transparent so they composite over the previous frame) is kept:
+
+1. A `transparentMask` identifies which pixels are unchanged vs the previous snapped frame
+2. Only *changed* pixels are fed to gifenc's `quantize()` — the transparent palette slot is appended at the end so changed pixels can never accidentally map to it
+3. The indexed array is post-processed: unchanged pixel indices are force-set to `transparentIndex`
+4. Frame written with `transparent: transparentIndex, dispose: 1` (do-not-dispose, compositing mode)
+
+Duplicate-frame detection accumulates delay into `pendingDelayMs` rather than editing an already-written frame (which streaming doesn't support).
+
+### Settings Changes
+
+- **quality** and **dither** settings are no-ops in v1.4.1. gifenc's PNN quantiser has no equivalent quality/sample knob and does not include dithering. Both settings are preserved in the UI for v1.4.2 where FFmpeg.wasm HD mode will use them.
+- All other settings (fps, width, colors, lossy/snap) work identically.
+
+### Files Changed
+
+- `src/hooks/useGifEncoder.js` — gifenc import, `processAndEncodeFrame()`, MAX_FRAMES=600, transparent delta, pending delay accumulation, synchronous `gif.finish()/gif.bytes()`, `gifInstanceRef` removed
+- `public/gif.worker.js` — **deleted** (no longer needed)
+- `index.html` — gif.worker.js preload removed
+- `package.json` — `gifenc ^1.0.3` added, `gif.js` removed, version → 1.4.1
+
+---
+
 ## v1.4.0 — Movie-to-GIF Guardrails
 
 ### Root Cause: Why Large Videos Crashed
