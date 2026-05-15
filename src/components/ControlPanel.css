@@ -89,6 +89,16 @@
   color: var(--c-contrast);
 }
 
+.ctrl-seg--disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.ctrl-seg--disabled:hover {
+  color: var(--c-muted);
+  background: transparent;
+}
+
 /* Toggle */
 .ctrl-toggle {
   display: flex;

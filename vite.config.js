@@ -6,6 +6,11 @@ const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'))
 
 export default defineConfig({
   plugins: [react()],
+  optimizeDeps: {
+    // @ffmpeg packages ship as ESM with dynamic imports — Vite's CommonJS
+    // pre-bundler breaks them.  Exclude to let them load as-is.
+    exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util'],
+  },
   define: {
     __APP_VERSION__: JSON.stringify('v' + pkg.version),
   },

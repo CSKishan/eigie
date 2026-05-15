@@ -23,7 +23,7 @@ function ProgressBar({ value }) {
 }
 
 export default function ConversionDisplay({
-  status, progress, log,
+  status, progress, log, ffmpegPhase,
   onConvert, onCancel, onAutoAdjust, canConvert,
   expectedFrames, estimatedRamMb, tooManyFrames, maxFrames, fps,
 }) {
@@ -32,15 +32,20 @@ export default function ConversionDisplay({
   const isError = status === 'error';
   const showPreflight = expectedFrames > 0 && !isConverting && !isDone;
 
-  const displayText = isConverting
-    ? log.slice(0, 28)
-    : isDone
-    ? 'conversion complete'
-    : isError
-    ? 'error — see below'
-    : tooManyFrames
-    ? 'clip too long'
-    : 'ready to convert';
+  let displayText;
+  if (isConverting) {
+    if (ffmpegPhase === 'loading') displayText = 'loading HD encoder…';
+    else if (ffmpegPhase === 'encoding') displayText = log.slice(0, 28) || 'encoding…';
+    else displayText = log.slice(0, 28);
+  } else if (isDone) {
+    displayText = 'conversion complete';
+  } else if (isError) {
+    displayText = 'error — see below';
+  } else if (tooManyFrames) {
+    displayText = 'clip too long';
+  } else {
+    displayText = 'ready to convert';
+  }
 
   return (
     <div className="conv-root panel">
