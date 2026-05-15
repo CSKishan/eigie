@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import UploadZone from './components/UploadZone';
 import VideoPreview from './components/VideoPreview';
 import ControlPanel from './components/ControlPanel';
@@ -211,6 +212,7 @@ export default function App() {
         <span className="label" style={{ color: 'var(--c-dim)' }}>{APP_VERSION} · gif.js · WebCodecs</span>
       </footer>
       <Analytics />
+      <SpeedInsights />
     </div>
   );
 }
