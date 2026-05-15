@@ -4,6 +4,64 @@ All notable changes to **eigie** (everything is gif is everything) are documente
 
 ---
 
+## v1.3.2 — Tests & Responsive Fixes
+
+### Test Infrastructure
+
+- Added **Vitest** as the test runner (zero-config with Vite; no separate build step)
+- Added **happy-dom** environment for browser API simulation
+- Exported `computeDimensions`, `processFrame`, and `addProcessedFrame` as named exports for unit testing
+- Added `npm test`, `npm run test:watch`, and `npm run test:coverage` scripts
+
+### Unit Tests — `computeDimensions`
+
+- All 4 valid scale options (320, 480, 640, -1) with a 1920×1080 source
+- No-upscale guarantee (scale > source width is clamped to source width)
+- Even-pixel clamping on odd-dimension edge cases
+- Portrait and square video sources
+- Positive integer output assertion for all inputs
+
+### Unit Tests — `processFrame`
+
+- First frame with `prevSnapped=null` → `changeRatio=1.0`, no transparent-key marks
+- Identical second frame → `changeRatio=0`, all pixels replaced with transparent key `[1,1,1]`
+- Partially changed frames → ratio computed correctly
+- Single-pixel change in 200-pixel buffer → `changeRatio < 0.02` (duplicate threshold)
+- All 3 lossy step values (4, 8, 16): correct quantisation, no values exceed 255
+- Large-buffer smoke tests: 320×240 and 640×480 without error
+
+### Integration Tests — Settings Matrix
+
+- All 4 fps values → correct `frameDelayMs`
+- All 4 scale values → correct output dimensions from `computeDimensions`
+- Both quality values → correct GIF quality factor (2 or 10)
+- Both dither values accepted
+- All 3 colors values → correct `colorStep`
+- All 4 lossy values → correct `lossyStep`
+- All **12 colors × lossy combinations** → valid `snapStep = max(lossyStep, colorStep)`
+- Full **768-combination smoke test** (4 fps × 4 scale × 2 quality × 2 dither × 3 colors × 4 lossy) verifying no combination produces invalid encoder inputs
+
+### Responsive Fix
+
+- Output action buttons ("download gif" + "share on whatsapp") now stack vertically on screens ≤ 600px, each taking full width — previously the WhatsApp button overflowed off-screen on mobile viewports
+
+### WhatsApp Button
+
+- Clicking "share on whatsapp" now shows "Coming soon. Stay tuned." inline below the buttons instead of attempting a share or opening WhatsApp Web
+
+### Files Changed
+
+- `vite.config.js` — Added `test` block (happy-dom environment, coverage config)
+- `package.json` — Added test scripts, bumped version to 1.3.2; installed vitest, @vitest/coverage-v8, happy-dom
+- `src/hooks/useGifEncoder.js` — Exported `computeDimensions`, `processFrame`, `addProcessedFrame`
+- `src/hooks/__tests__/computeDimensions.test.js` — New: 13 unit tests
+- `src/hooks/__tests__/processFrame.test.js` — New: 13 unit tests
+- `src/hooks/__tests__/settingsMatrix.test.js` — New: 64 tests + 768-combo smoke test
+- `src/components/OutputPanel.jsx` — "Coming soon" WhatsApp message
+- `src/components/OutputPanel.css` — Mobile stacking media query
+
+---
+
 ## v1.3.1 — Bug Fixes
 
 ### Play Button Visibility in Light Themes

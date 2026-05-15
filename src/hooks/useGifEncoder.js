@@ -5,7 +5,7 @@ function ts() {
   return new Date().toISOString().slice(11, 23);
 }
 
-function computeDimensions(scale, videoWidth, videoHeight) {
+export function computeDimensions(scale, videoWidth, videoHeight) {
   if (scale === -1) return { width: videoWidth, height: videoHeight };
   const ratio = videoHeight / videoWidth;
   const w = Math.min(scale, videoWidth);
@@ -18,7 +18,7 @@ const TRANSPARENT_KEY = 0x010101;
 const HAS_RVFC = typeof HTMLVideoElement !== 'undefined'
   && 'requestVideoFrameCallback' in HTMLVideoElement.prototype;
 
-function processFrame(imgData, prevSnapped, snapStep) {
+export function processFrame(imgData, prevSnapped, snapStep) {
   const data = imgData.data;
   const numPixels = data.length / 4;
   const snapped = new Uint8Array(numPixels * 3);
@@ -54,7 +54,7 @@ function processFrame(imgData, prevSnapped, snapStep) {
   return { snapped, changeRatio: changed / numPixels };
 }
 
-function addProcessedFrame(gif, ctx, canvas, frameDelayMs, state, snapStep) {
+export function addProcessedFrame(gif, ctx, canvas, frameDelayMs, state, snapStep) {
   const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const { snapped, changeRatio } = processFrame(imgData, state.prevSnapped, snapStep);
 

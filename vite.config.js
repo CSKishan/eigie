@@ -9,4 +9,14 @@ export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify('v' + pkg.version),
   },
+  test: {
+    environment: 'happy-dom',
+    globals: true,
+    include: ['src/**/*.test.js', 'src/**/*.test.jsx'],
+    coverage: {
+      provider: 'v8',
+      include: ['src/hooks/**'],
+      reporter: ['text', 'html'],
+    },
+  },
 })

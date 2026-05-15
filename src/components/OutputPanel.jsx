@@ -25,6 +25,7 @@ export default function OutputPanel({ gifBlob, onReset }) {
   const [gifUrl, setGifUrl] = useState('');
   const [gifSize, setGifSize] = useState(0);
   const [shareError, setShareError] = useState('');
+  const [shareMessage, setShareMessage] = useState('');
 
   useEffect(() => {
     if (!gifBlob) return;
@@ -41,27 +42,9 @@ export default function OutputPanel({ gifBlob, onReset }) {
     a.click();
   };
 
-  const shareWhatsApp = async () => {
+  const shareWhatsApp = () => {
     setShareError('');
-    const file = new File([gifBlob], 'animated.gif', { type: 'image/gif' });
-
-    if (canShare() && navigator.canShare({ files: [file] })) {
-      try {
-        await navigator.share({
-          files: [file],
-          title: 'made with eigie',
-        });
-      } catch (err) {
-        if (err.name !== 'AbortError') {
-          setShareError('Share failed. Try downloading and sharing manually.');
-        }
-      }
-    } else {
-      // Desktop fallback: open WhatsApp Web
-      const waUrl = `https://web.whatsapp.com/`;
-      window.open(waUrl, '_blank');
-      setShareError('File sharing not supported on this browser. Download the GIF and attach it in WhatsApp.');
-    }
+    setShareMessage('Coming soon. Stay tuned.');
   };
 
   if (!gifBlob || !gifUrl) return null;
@@ -113,6 +96,12 @@ export default function OutputPanel({ gifBlob, onReset }) {
       {shareError && (
         <p className="output-share-error label" style={{ color: 'var(--c-accent)' }}>
           {shareError}
+        </p>
+      )}
+
+      {shareMessage && (
+        <p className="output-share-message label" style={{ color: 'var(--c-muted)' }}>
+          {shareMessage}
         </p>
       )}
 

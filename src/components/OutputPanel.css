@@ -121,3 +121,13 @@
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
+
+.output-share-message {
+  padding: var(--sp-2) 0;
+}
+
+@media (max-width: 600px) {
+  .output-actions {
+    flex-direction: column;
+  }
+}
